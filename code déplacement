@@ -1,0 +1,49 @@
+# chasseur de dragon
+code jeu : chasseur de dragon
+
+TEST DEPLACEMENT 
+
+from tkinter import *
+
+fenetre=Tk()
+fenetre.title("Jeu Python")
+n=15
+c=50
+can=Canvas(fenetre,width=n*c,height=n*c, bg="black")
+can.pack()
+
+pos=[0,0]
+
+#repositionner les élements ?
+can.create_oval(50,50,100,100,fill="blue")
+
+#déplacement vers la droite
+
+def TestD(event = None):
+    global pos
+    pos[0]+=50
+    rondIn()
+
+def rondInD():
+    global c,posx,posy,Mt
+    can.delete(ALL)
+    rond = can.create_oval(pos[0],pos[1],pos[0]+c,pos[1]+c,fill='blue')
+
+
+#déplacement vers la gauche
+
+def TestG(event = None):
+    global pos
+    pos[0]-=50
+    rondIn()
+
+def rondInG():
+    global c,posx,posy,Mt
+    can.delete(ALL)
+    rond = can.create_oval(pos[0],pos[1],pos[0]-c,pos[1]-c,fill='blue')
+
+
+fenetre.bind("<d>", TestD)
+fenetre.bind("<g>", TestG)
+
+fenetre.mainloop()
