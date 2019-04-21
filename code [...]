@@ -1,0 +1,209 @@
+import tkinter as tk # import de la bibliothèque tkinter
+#% pylab inline
+from PIL import Image, ImageTk
+
+
+
+"""Il suffit de lui donner une vitesse initiale (qui sera ultérierement modifié àléatoirement)"""
+
+def Euleur(Fonc, tf, B0, n):
+# relation de récurence grâce à la méthode d'Euleur
+    B = np.zeros((n+1, len(B0)))
+    t = np.linspace(0, tf, n+1)
+    B[0]= B0
+    h = tf/n
+    for k in range(n) :
+        B[k+1] = B[k] + h*Fonc(B[k])
+    return t, B
+
+def Dérive(A):
+#fonction dérivé adaptée selon l'altitude
+    z, v = A
+    n_z = v
+    if z < 20 :
+        n_v = grav - alpha*v/masse
+    else :
+        n_v = grav -(alpha*v + raid*(z-l0))/masse
+    return np.array((n_z, n_v))
+
+
+def change_txt(x):
+    if x :
+        zone_graphique.itemconfig(texte, text="Mes félicitations, le programateur te tire son chapeau !", fill="green")
+    else :
+        zone_graphique.itemconfig(texte, text="Ce coup était à l'image de ta vie ... raté ", fill="red")
+
+def bouge():
+# fonction pour modifier la position de l'image dans le Canvas
+    global y_im, i, X, attrapé, succès
+    y_im = 8*X[i, 0] + 270
+    i = i + n
+    if i >= incr-n :
+        return
+    zone_graphique.coords(lian, 715, y_im )
+    # change les coordonnées de l'image
+    zone_graphique.coords(corde, 714, 295, 716, y_im )
+    if h-8 < y_im < h+8 and abs(X[i, 1]) < 4:
+        attrapé = True
+    if attrapé :
+        zone_graphique.coords(dragon, 730, y_im )
+        succès = True
+    fenetre.after(1, bouge)
+    # la fonction bouge est appelée de nouveau après 10 ms.
+
+
+
+Vini = 0
+partie = True
+j = 0
+succès = False
+
+def vitesse():
+    global partie, Vini, X
+    zone_graphique.itemconfig(texte, text="", fill="red")
+    if partie:
+        bouton_jauge.config(state='disabled')
+        bouton_start.config(state='normal')
+        if glissiere1.get() < 35 :
+            glissiere1.set(glissiere1.get()+1)
+        if  glissiere1.get() == 35 :
+            glissiere1.set(0)
+        fenetre.after(30, vitesse)
+    else :
+        Vini = -glissiere1.get()
+        Va = Vini - (0.5 - rand())/10
+        # vitesse après altération de +/- 5%
+        print((Vini - Va)*100)
+        X0 = np.array([z0, Va])
+        # couple (altitude, vitesse) de départ
+        T, X = Euleur(Dérive, tfin, X0, incr)
+        bouge()
+        return
+
+def c_est_parti():
+    global partie, j
+    j = j + 1
+    if partie :
+        bouton_start.config(state='disabled')
+        partie = not partie
+        bouton_rejouer.config(state='normal')
+
+
+def new_game():
+    global i, partie, j, attrapé, h, succès
+    # variables globales
+    y_im = 270 # position de l'image dans le canvas
+    i = 0
+    partie = True
+    bouton_jauge.config(state='normal')
+    bouton_rejouer.config(state='disabled', text='          rejouer          ')
+    zone_graphique.coords(lian, 715, 270) # change les coordonnées de l'image
+    zone_graphique.coords(corde, 714, 295, 716, 270 )
+    if succès :
+        change_txt(succès)
+        j = 0
+    if j == 2:
+        if not succès :
+            change_txt(succès)
+        j = 0
+    if j == 0:
+        h = int(610 + 88*(0.5 - rand())) # position aléatoire du dragon
+        zone_graphique.coords(dragon, 730, h)
+        zone_graphique.coords(mer, 0, h+50, 1450, 800)
+        zone_graphique.coords(bateau, 745, h+32)
+    attrapé = False
+    succès = False
+    zone_graphique.coords(dragon, 730, h)
+
+
+
+
+# initialisation globale
+
+l0 = 20    # longueur de la corde
+z0 = 0    # altitude de départ
+grav = 9.81    # constante de pesanteur
+alpha = 15    # coefficient de frottement fluide
+raid = 100    # constante de raideur
+masse = 90    # masse de Lian-Chu
+tfin = 18    # durée de la partie
+incr = 10000    # nombre de position
+n= incr//1000
+
+
+
+# position aléatoire du dragon
+attrapé = False
+
+# création de l'objet de base
+fenetre = tk.Tk()
+fenetre.title("Chasseur de dragon")
+
+# lecture et convertion du pont
+pont_im = Image.open("bridge_PNG10.png").resize((1400,790))
+pont_tk = ImageTk.PhotoImage(pont_im)
+
+# lecture et convertion du bateau
+bateau_im = Image.open("bateau3d_v2.png").resize((100, 60))
+bateau_tk = ImageTk.PhotoImage(bateau_im)
+
+# lecture et convertion du dragon
+dragon_im = Image.open("Komodo-Dragon-PNG-Transparent-Image.png").resize((50, 30))
+dragon_tk = ImageTk.PhotoImage(dragon_im)
+
+# lecture et convertion de Lian-Chu
+lian_im = Image.open("Samus.png").resize((50, 30))
+lian_tk = ImageTk.PhotoImage(lian_im)
+
+
+
+# définition et positionnement des objets graphiques
+zone_graphique = tk.Canvas(fenetre, width=1400, height = 700, background='pink')
+zone_graphique.grid(row = 0, column = 0)
+
+
+
+bouton_jauge = tk.Button(fenetre, text="          vitesse          ", command=vitesse)
+bouton_jauge.grid(columnspan=4, sticky='E')
+
+bouton_start = tk.Button(fenetre, text="          start          ", command=c_est_parti)
+bouton_start.grid(row=2, columnspan=4, sticky='E')
+
+bouton_rejouer = tk.Button(fenetre, text="            jouer           ", command=new_game)
+bouton_rejouer.grid(row=3, columnspan=4, sticky='E')
+
+glissiere1 = tk.Scale(fenetre, from_=0, to_=35, resolution=1, orient='vertical')
+glissiere1.grid(row= 1, rowspan = 4, column=0, sticky='W')
+
+
+
+# Affichage du pont
+pont = zone_graphique.create_image((715, 400), image=pont_tk)
+
+# affichage de la mer
+mer = zone_graphique.create_rectangle(0, 650, 1450, 800, fill='blue', dash=(2,4))
+
+# Affichage du bateau
+bateau = zone_graphique.create_image((745, 632), image=bateau_tk)
+
+# affichage du dragon
+dragon = zone_graphique.create_image((730, 600), image=dragon_tk)
+
+# affichage de Lian-chu
+lian = zone_graphique.create_image((715, 270), image=lian_tk)
+
+# affichage de la corde
+corde = zone_graphique.create_rectangle(714, 295, 716, 270, fill='brown', dash=(4,4))
+
+
+# variables globales
+y_im = 270 # position de l'image dans le canvas
+i = 0
+
+texte = zone_graphique.create_text((700, 150), text = "", font=('Helvetica','40'), fill='red')
+
+bouton_start.config(state='disabled')
+bouton_jauge.config(state='disabled')
+
+
+fenetre.mainloop()
