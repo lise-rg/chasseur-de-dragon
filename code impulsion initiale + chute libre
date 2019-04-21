@@ -1,0 +1,49 @@
+%pylab
+
+# détermination hauteur : fin impulsion initiale
+n = #valeur à déterminer
+
+def impulsion_initiale(VO, g, n, f)
+    X0 = np.array([0, V0])
+    X = np.zeros(n, len(X0))
+    X[0]= X0
+    t1 = np.lindspace(0, V0/g, n)
+    h = VO/g/n
+
+    for k in range (n):
+        X[k+1] = X[k] + h*F1(X[k])
+
+    return t1, X
+
+def F1(X):
+    z, v = X
+    n_z = z + h*v
+    n_v = v + h*(-g)
+
+    return np.array([n_z, n_v])
+
+
+# détermination vitesse : fin chute libre
+
+t1, X = impulsion_initiale(5, 9.81, 101, F1)
+x0 = X[n, 0]
+# avec x0, la hauteur à la fin de l'impulsion initiale
+
+def chute_libre(x0, g, n1, F2)
+    Y0 = np.array([x0, 0])
+    Y = np.zeros(n1, len(Y0))
+    Y[0]= Y0
+    tf2 = (20 + x0)**0.5
+    t2 = np.lindspace(t1, tf2, n1)
+    h = (t1 - tf2)/n1
+
+    for k in range (n1):
+        Y[k+1] = Y[k] + h*F2(Y[k])
+
+    return t2, Y
+
+def F2(X):
+    z, v = Y
+    n_z = z + h*v
+    n_v = v + h*(-g)
+    return np.array([n_z, n_v])
