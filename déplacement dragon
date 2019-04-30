@@ -1,0 +1,80 @@
+##DEPLACMENT TOUTE DIRECTION AVEC LES TOUCHES ZQSD
+
+import tkinter as tk
+
+# définition des déplacements (choix de la variation dx de la position)
+gauche = lambda: can.move('perso', -5, 0)
+droite = lambda: can.move('perso', 5, 0)
+bas = lambda: can.move('perso', 0, 5)
+haut = lambda: can.move('perso', 0, -5)
+
+
+# association de chaque touche avec un état
+touches = {
+    'q': {
+        'etat': False,
+        'action': gauche #correspond à la fonction 'gauche' définie au dessus
+       },
+    'd': {
+        'etat': False,
+        'action': droite #correspond à la fonction 'droite'
+       },
+    's': {
+        'etat': False,
+        'action': bas #correspond à la fonction 'bas'
+       },
+    'z': {
+        'etat': False,
+        'action': haut #correspond à la fonction 'haut'
+       },
+   }
+
+
+# changement de l'état quand une touche est actionnée
+def appui(evt):
+    t = evt.keysym
+    if t in touches: touches[t]['etat'] = True
+# quand on appui sur une des touche, l'état associé dans "touches" devient "True" et actionne le déplacement correspondant
+
+
+def relache(evt):
+    t = evt.keysym
+    if t in touches: touches[t]['etat'] = False
+# quand on relâche la touche, l'état redevient "False" et le déplacement s'arrète
+
+
+def controleur():
+    fen.after(40, controleur)
+    for t in touches:
+        t = touches[t]
+        if t['etat']:
+            t['action']()
+
+
+# initialisation globale
+"""l'initialisation sera celle déja en place pour le jeu, içi elle n'a pas beaucoup d'importance et permet seulement de tester le programme"""
+fen = tk.Tk()
+fen.title("mouvement du dragon")
+can = tk.Canvas(fen, width=500, height=500, bg="white")
+can.pack(padx=5, pady=5)
+
+
+# lecture et convertion de Lian Chu
+""" ici j'ai seulement mis un rectangle car je n'arrive pas à mettre d'image, mais idéalement il faudrait l'image du perso"""
+can.create_rectangle(200, 200, 300, 300,
+                    fill='black', width=10, outline='blue',
+                    tags='perso')
+
+
+
+fen.bind('<KeyPress-q>', appui)
+fen.bind('<KeyPress-s>', appui)
+fen.bind('<KeyPress-d>', appui)
+fen.bind('<KeyPress-z>', appui)
+fen.bind('<KeyRelease-q>', relache)
+fen.bind('<KeyRelease-s>', relache)
+fen.bind('<KeyRelease-d>', relache)
+fen.bind('<KeyRelease-z>', relache)
+controleur()
+
+fen.mainloop()
