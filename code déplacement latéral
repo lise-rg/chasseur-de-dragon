@@ -1,49 +1,66 @@
 # chasseur de dragon
 code jeu : chasseur de dragon
 
-TEST DEPLACEMENT 
+TEST DEPLACEMENT LATERAL AVEC LES TOUCHES FLECHES
 
-from tkinter import *
+import tkinter as tk
 
-fenetre=Tk()
-fenetre.title("Jeu Python")
-n=15
-c=50
-can=Canvas(fenetre,width=n*c,height=n*c, bg="black")
-can.pack()
-
-pos=[0,0]
-
-#repositionner les élements ?
-can.create_oval(50,50,100,100,fill="blue")
-
-#déplacement vers la droite
-
-def TestD(event = None):
-    global pos
-    pos[0]+=50
-    rondIn()
-
-def rondInD():
-    global c,posx,posy,Mt
-    can.delete(ALL)
-    rond = can.create_oval(pos[0],pos[1],pos[0]+c,pos[1]+c,fill='blue')
+# définition des déplacements (choix de la variation dx de la position)
+gauche = lambda: can.move('perso', -5, 0)
+droite = lambda: can.move('perso', 5, 0)
 
 
-#déplacement vers la gauche
+# association de chaque touche avec un état
+touches = {
+    'Left': {
+        'etat': False,
+        'action': gauche #correspond à la fonction 'gauche' définie au dessus
+       },
+    'Right': {
+        'etat': False,
+        'action': droite #correspond à la fonction 'droite' définie au dessus
+       },
+   }
 
-def TestG(event = None):
-    global pos
-    pos[0]-=50
-    rondIn()
 
-def rondInG():
-    global c,posx,posy,Mt
-    can.delete(ALL)
-    rond = can.create_oval(pos[0],pos[1],pos[0]-c,pos[1]-c,fill='blue')
+# changement de l'état quand une touche est actionnée
+def appui(evt):
+    t = evt.keysym
+    if t in touches: touches[t]['etat'] = True
+# quand on appui sur une des touche, l'état associé dans "touches" devient "True" et actionne le déplacement correspondant
+
+def relache(evt):
+    t = evt.keysym
+    if t in touches: touches[t]['etat'] = False
+# quand on relâche la touche, l'état redevient "False" et le déplacement s'arrète
 
 
-fenetre.bind("<d>", TestD)
-fenetre.bind("<g>", TestG)
+def controleur():
+    fen.after(40, controleur)
+    for t in touches:
+        t = touches[t]
+        if t['etat']:
+            t['action']()
 
-fenetre.mainloop()
+
+
+# initialisation globale
+"""l'initialisation sera celle déja en place pour le jeu, içi elle n'a pas beaucoup d'importance et permet seulement de tester le programme"""
+fen = tk.Tk()
+fen.title("mouvement fluide")
+can = tk.Canvas(fen, width=500, height=500, bg="white")
+can.pack(padx=5, pady=5)
+
+
+# lecture et convertion de Lian Chu
+""" ici j'ai seulement mis un rectangle car je n'arrive pas à mettre d'image, mais idéalement il faudrait l'image du perso"""
+can.create_rectangle(200, 200, 300, 300,
+                    fill='black', width=10, outline='blue',
+                    tags='perso')
+
+
+fen.bind('<Key>', appui)
+fen.bind('<KeyRelease>', relache)
+controleur()
+
+fen.mainloop()
